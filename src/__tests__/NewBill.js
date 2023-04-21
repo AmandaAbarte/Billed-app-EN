@@ -4,6 +4,7 @@ import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import firestore from "../app/Firestore";
 import { ROUTES } from "../constants/routes";
+import firebase from "../__mocks__/firebase";
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -105,6 +106,50 @@ describe("Given I am connected as an employee", () => {
 
       fireEvent.submit(formNewBill);
       expect(handleSubmit).toHaveBeenCalled();
+    });
+  });
+});
+
+// POST new bills integration test (based on example in dashboard)
+describe("Given I am a user connected as Employee", () => {
+  describe("When I create new fee", () => {
+    test("then new bill posts to api", async () => {
+      const spyPost = jest.spyOn(firebase, "post");
+      const newBill = {
+        email: "test@email.com",
+        type: "Travels",
+        name: "TestName",
+        amount: 100,
+        date: "2023-03-10",
+        vat: "17",
+        pct: 20,
+        commentary: "Test Commentary",
+        fileUrl:
+          "https://www.google.com/url?sa=i&url=https%3A%2F%2Fsimple.wikipedia.org%2Fwiki%2FLink&psig=AOvVaw1K9RuqB2S0tWkfsdRxKltJ&ust=1681562648476000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCPjGvpSzqf4CFQAAAAAdAAAAABAE",
+        fileName: "Testfilename",
+        status: "pending",
+      };
+      const bills = await firebase.get(newBill);
+      expect(spyPost).toHaveBeenCalledTimes(1);
+      expect(bills.data.length).toBe(5);
+    });
+    test("posting new bill fails with 404 message error", async () => {
+      firebase.post.mockImplementationOnce(() =>
+        Promise.reject(new Error("Erreur 404"))
+      );
+      const html = BillsUI({ error: "Erreur 404" });
+      document.body.innerHTML = html;
+      const message = await screen.getByText(/Erreur 404/);
+      expect(message).toBeTruthy();
+    });
+    test("posting new bill fails with 500 message error", async () => {
+      firebase.post.mockImplementationOnce(() =>
+        Promise.reject(new Error("Erreur 500"))
+      );
+      const html = BillsUI({ error: "Erreur 500" });
+      document.body.innerHTML = html;
+      const message = await screen.getByText(/Erreur 500/);
+      expect(message).toBeTruthy();
     });
   });
 });
