@@ -1,3 +1,4 @@
+import firebase from "./firebase";
 export default {
   get: () => {
     return Promise.resolve({
@@ -62,5 +63,31 @@ export default {
         "fileUrl": "https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=4df6ed2c-12c8-42a2-b013-346c1346f732"
       }]
     })
-  }
+  },
+  post: async (billdata) => {
+    // calls the get method up
+    const getData = await firebase.get();
+
+    // returns the original bills + the new one
+    return Promise.resolve({
+      data: [
+        ...getData.data,
+        {
+          id: billdata.id,
+          status: billdata.status,
+          pct: billdata.pct,
+          amount: billdata.amount,
+          email: billdata.email,
+          name: billdata.name,
+          vat: billdata.vat,
+          fileName: billdata.filename,
+          date: billdata.date,
+          commentAdmin: billdata.commentAdmin,
+          commentary: billdata.commentary,
+          type: billdata.type,
+          fileUrl: billdata.fileUrl,
+        },
+      ],
+    });
+  },
 }

@@ -2,9 +2,10 @@ import { screen, fireEvent } from "@testing-library/dom";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
+import BillsUI from "../views/BillsUI.js";
 import firestore from "../app/Firestore";
-import { ROUTES } from "../constants/routes";
 import firebase from "../__mocks__/firebase";
+import { ROUTES } from "../constants/routes";
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -116,6 +117,7 @@ describe("Given I am a user connected as Employee", () => {
     test("then new bill posts to api", async () => {
       const spyPost = jest.spyOn(firebase, "post");
       const newBill = {
+        id: "12345sdfsf",
         email: "test@email.com",
         type: "Travels",
         name: "TestName",
@@ -124,12 +126,13 @@ describe("Given I am a user connected as Employee", () => {
         vat: "17",
         pct: 20,
         commentary: "Test Commentary",
+        commentAdmin: "Also test comment",
         fileUrl:
           "https://www.google.com/url?sa=i&url=https%3A%2F%2Fsimple.wikipedia.org%2Fwiki%2FLink&psig=AOvVaw1K9RuqB2S0tWkfsdRxKltJ&ust=1681562648476000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCPjGvpSzqf4CFQAAAAAdAAAAABAE",
         fileName: "Testfilename",
         status: "pending",
       };
-      const bills = await firebase.get(newBill);
+      const bills = await firebase.post(newBill);
       expect(spyPost).toHaveBeenCalledTimes(1);
       expect(bills.data.length).toBe(5);
     });
